@@ -1,0 +1,19 @@
+CreditorName = Audio Saint System SA
+CreditorAddress = Schulstrasse 121
+CreditorCity = CH-5512 Wohlenschwil
+CreditorIBAN = CH35 0012 0234 1234 5601 X
+CreditorEmail = info@ass.chf
+CreditorPhone = +41 58 888 88 88
+
+PayementAmount = 168.95
+PayementCurrency = CHF
+PayementTitle = Payement
+PayementInformation = Transfert
+ReferenceNumber = 00 78546 45211 05470 07931 12380
+AdditionalInformation = Order MK6633
+InvoiceID = 123881
+
+DebtorName = Stéphane Küng
+DebtorAddress = Bahnhofstrasse 47
+DebtorCity = CH-6037 Root
+DebtorClientNumber = 192.922.3

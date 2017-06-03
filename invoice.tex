@@ -1,0 +1,167 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+
+\documentclass[12pt,a4paper]{letter}
+
+%Usepackage
+\usepackage{tikz}
+\usepackage{qrcode} %add [draft] from not generating QR code each time
+
+\usepackage[absolute]{textpos}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1cm]{geometry}
+\usepackage[english]{./packages/invoice}
+\usepackage{hyperref}
+\usepackage[ddmmyyyy]{datetime}
+\renewcommand{\dateseparator}{.}
+\usepackage{advdate}
+
+\usepackage{datatool}
+\DTLsetseparator{ = }
+\DTLloaddb[noheader, keys={thekey,thevalue}]{paymentdata}{paymentdata.txt}
+\newcommand{\get}[1]{\DTLfetch{paymentdata}{thekey}{#1}{thevalue}}
+
+
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\usetikzlibrary{calc,positioning,fit}
+\pagenumbering{gobble}
+
+\newcommand{\PaymentArea}[2]{%
+\begin{tikzpicture}[
+	remember picture,
+	overlay, 
+	node distance=0mm,
+	sectiontype/.style={rectangle, inner sep=0,outer sep=0},
+	texttype/.style={align=left, inner sep=2mm,outer sep=0}
+]
+
+	%Border : ultra thin, very ..., thin, thick, very..., ultra...
+  
+	\def\x{#1}
+	\def\y{#2}
+	\def\w{148}
+	\def\h{105}
+
+	\node (payementpart) [sectiontype, draw=black,color=black,thick,anchor=south east,minimum height=\h mm, minimum width=\w mm] at ($(current page.south east)+(\x mm,-\y mm)$) {};
+
+	\node (section_title) [sectiontype, below=of payementpart.north west, anchor=north west,minimum height=8mm, minimum width=51mm, xshift=5mm, yshift=0mm] { };
+
+	\node[texttype, below right] at (section_title.north west) { 
+		\textbf{\get{PayementTitle}} 
+	};
+
+	\node (section_scheme) [sectiontype, below=of payementpart.north west, anchor=north west,minimum height=16mm, minimum width=51mm, xshift=5mm, yshift=-8mm] { };
+
+	\node[texttype, below right] at (section_scheme.north west) { 
+		\scriptsize{\textbf{Supports}} \\ 
+		\footnotesize{\get{PayementInformation}}
+	};
+
+	\node (section_amount) [sectiontype, below=of payementpart.north west, anchor=north west,minimum height=20mm, minimum width=51mm, xshift=5mm, yshift=-80mm] { };
+
+	\node[texttype, below right] at (section_amount.north west) { 
+		\begin{tabular}{ll}
+	   	\scriptsize{\textbf{Currency}} & \scriptsize{\textbf{Amount}} \\
+	   	\footnotesize{\get{PayementCurrency}} & \footnotesize{\get{PayementAmount}} \\
+		\end{tabular}
+	};
+
+	\node (section_information) [sectiontype, below=of payementpart.north west, anchor=north west,minimum height=95mm, minimum width=87mm, xshift=56mm, yshift=-5mm] { };
+
+	\node[texttype, below right, xshift=5mm] at (section_information.north west) { 
+		\scriptsize{\textbf{Account}} \\ 
+		\footnotesize{\get{CreditorIBAN}} \\
+		\scriptsize{\textbf{Creditor}} \\ 
+		\footnotesize{\get{CreditorName}} \\
+		\footnotesize{\get{CreditorAddress}} \\
+		\footnotesize{\get{CreditorCity}} \\
+		\scriptsize{\textbf{Reference number}} \\ 
+		\footnotesize{\get{ReferenceNumber}} \\
+		\scriptsize{\textbf{Additional information}} \\ 
+		\footnotesize{\get{AdditionalInformation}} \\
+		\scriptsize{\textbf{Debtor}} \\ 
+		\footnotesize{\get{DebtorName}} \\
+		\footnotesize{\get{DebtorAddress}} \\
+		\footnotesize{\get{DebtorCity}} \\
+		\scriptsize{\textbf{Due date}} \\
+		\footnotesize{\duedate} \\
+	};
+
+	\node (section_qrcode) [sectiontype, below=of payementpart.north west, anchor=north west,minimum height=46mm, minimum width=46mm, xshift=5mm, yshift=-29mm] { \qrcode[tight,nolink,height=46mm,level=H]{Stéphaneeeeeeeeeeeeasdfasdf8as90d80f8a09s8d0f8as0d8f0a80sd80f8eee} };
+
+	\node (section_swiss) [sectiontype, thin, color=red, below=of payementpart.north west, anchor=north west,minimum height=7mm, minimum width=7mm, xshift=24.5mm, yshift=-48.5mm] {
+		\includegraphics[width=7mm,height=7mm]{imgs/CH-Kreuz_7mm.png}
+	};
+
+\end{tikzpicture}
+}
+
+\newcommand{\duedate}{\DayAfter[30]}
+
+\begin{document}
+
+{\huge Invoice}
+
+%From Field
+\begin{textblock}{12.6}(0.8,1.3)
+\raggedright
+{\small \get{CreditorName}\\\get{CreditorAddress}\\\get{CreditorCity}\\\href{}{\get{CreditorEmail}}\\\get{CreditorPhone}}
+\end{textblock}
+
+%To Field
+\begin{textblock}{12.6}(9.9,3.5)
+\raggedright
+{\large \get{DebtorName}\\\get{DebtorAddress}\\\get{DebtorCity}}
+\end{textblock}
+
+%Informations Field
+\begin{textblock}{4}(9.9,1.3)
+\raggedright
+{\small 
+Invoice date :  \\
+Client ID : \\
+Invoice ID : \\
+Total Amount : \\
+Payment due date :
+}
+\end{textblock}
+
+%Informations Values Field
+\begin{textblock}{4}(10,1.3)
+\raggedleft
+{\small 
+\textbf{\today}\\
+\textbf{\get{DebtorClientNumber}}\\
+\textbf{\get{InvoiceID}}\\
+\textbf{\get{PayementCurrency}\ \get{PayementAmount}}\\
+\textbf{\duedate}}
+\end{textblock}
+
+%Invoice Part
+\begin{textblock}{12.6}(1.7,5)
+ \begin{invoice}{CHF}{0}
+      \ProjectTitle{Items}
+      \Fee{Web Hosting {\footnotesize 1.10.2014 - 30.9.2015}} {145.95} {1}
+      \Fee{Domain Name xxxx.ch {\footnotesize 1.10.2014 - 30.9.2015}} {23.00} {1}
+    \end{invoice}
+\end{textblock}
+
+%Bottom Message Field
+\begin{textblock}{12.6}(1.7,9.5)
+\raggedright
+Total payment due in 30 days\\
+\textit{Thank you for your business!}
+\end{textblock}
+
+
+%Payment Part, unit is in milimeter from bottom right of the page
+\PaymentArea{0}{0}
+
+\end{document}
+
+
+
+
+
